@@ -1,0 +1,19 @@
+package br.jus.tjba.api.push.publicador.http;
+
+import br.jus.tjba.api.push.publicador.model.ProcessoListagemModel;
+import br.jus.tjba.api.push.publicador.model.ProcessoParametroModel;
+import jakarta.validation.Valid;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.List;
+
+@FeignClient("usuario")
+public interface UsuarioClient {
+
+    @RequestMapping(method = RequestMethod.GET, value = "/usuarios/obter-lista-publicacao")
+    ResponseEntity<List<ProcessoListagemModel>> obterPublicavies();
+}
