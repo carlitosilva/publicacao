@@ -16,7 +16,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class MesagemPendente {
+public class MensagemPendente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

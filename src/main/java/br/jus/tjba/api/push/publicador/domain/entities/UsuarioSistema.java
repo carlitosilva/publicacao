@@ -20,6 +20,6 @@ public class UsuarioSistema {
     private String chaveAcesso;
 /*    @OneToOne(mappedBy = "usuarioSistema", cascade = CascadeType.ALL,
             fetch = FetchType.LAZY, optional = false)
-    private MesagemPendente mensagemPendente;*/
+    private MensagemPendente mensagemPendente;*/
 }
 

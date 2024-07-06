@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @RestController
 @RequestMapping("/sinalizar")
@@ -30,28 +31,22 @@ public class PublicadorController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity publicar() {
+    @CircuitBreaker(name = "enviarMensagem", fallbackMethod = "cadastrar")
+    public ResponseEntity publicar(@RequestBody @Valid ProcessoParametroModel processoParametroModel, UriComponentsBuilder uriBuilder) {
+        String numeroProcesso = processoParametroModel.numeroProcesso();
+        String siglaSistema = processoParametroModel.siglaSistema();
+        var publicaveis = service.obterPublicavies(numeroProcesso, siglaSistema);
 
-        var publicaveis = service.obterPublicavies();
-
-
-        for (var i = 0; i < publicaveis.size(); i++){
+/*        for (var i = 0; i < publicaveis.get().size(); i++) {
             var processo = publicaveis.get(i);
-/*            var message = new Message(
-                    ("Processo Movimentado " +
-                    processo.id() + " " +
-                    processo.numeroProcesso() + " " +
-                    processo.usuario().login() + " " +
-                    processo.sistema().sigla()
-                    ).getBytes());*/
-
             rabbitTemplate.convertAndSend("processo.movimentado", processo);
-        }
-/*        var usuarioDetalheModel = usuarioService.cadastrar(usuarioModel);
+        }*/
+        publicaveis.forEach(p -> rabbitTemplate.convertAndSend("processo.movimentado", p));
+        return ResponseEntity.ok(publicaveis);
+    }
 
-        var uri = uriBuilder.path("/usuarios/{id}").buildAndExpand(usuarioDetalheModel.id()).toUri();
-
-        return ResponseEntity.created(uri).body(usuarioDetalheModel);*/
+    public ResponseEntity cadastrar(ProcessoParametroModel processoParametroModel, Exception e){
+        service.cadastrar(processoParametroModel);
         return ResponseEntity.noContent().build();
     }
 }
