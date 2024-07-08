@@ -30,7 +30,7 @@ public class MensagemPendente {
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private UsuarioSistema usuarioSistema;*/
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "id_usuario_sistema", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore

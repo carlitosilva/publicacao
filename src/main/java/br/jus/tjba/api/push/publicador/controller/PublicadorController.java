@@ -26,27 +26,31 @@ public class PublicadorController {
     @Autowired
     private PublicadorService service;
 
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
-
     @PostMapping
     @Transactional
     @CircuitBreaker(name = "enviarMensagem", fallbackMethod = "cadastrar")
     public ResponseEntity publicar(@RequestBody @Valid ProcessoParametroModel processoParametroModel, UriComponentsBuilder uriBuilder) {
-        String numeroProcesso = processoParametroModel.numeroProcesso();
+        /*String numeroProcesso = processoParametroModel.numeroProcesso();
         String siglaSistema = processoParametroModel.siglaSistema();
         var publicaveis = service.obterPublicavies(numeroProcesso, siglaSistema);
 
-/*        for (var i = 0; i < publicaveis.get().size(); i++) {
+/**       for (var i = 0; i < publicaveis.get().size(); i++) {
             var processo = publicaveis.get(i);
             rabbitTemplate.convertAndSend("processo.movimentado", processo);
-        }*/
-        publicaveis.forEach(p -> rabbitTemplate.convertAndSend("processo.movimentado", p));
+        }** /
+        publicaveis.forEach(p -> rabbitTemplate.convertAndSend("processo.movimentado", p));*/
+        var publicaveis = service.enviarMensagem(processoParametroModel);
         return ResponseEntity.ok(publicaveis);
     }
 
-    public ResponseEntity cadastrar(ProcessoParametroModel processoParametroModel, Exception e){
-        service.cadastrar(processoParametroModel);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity cadastrar(ProcessoParametroModel processoParametroModel, UriComponentsBuilder uriBuilder, Exception e){
+        var  mensagemPendenteModel = service.cadastrar(processoParametroModel);
+
+        var uri = uriBuilder.path("/publicador/{id}").buildAndExpand(mensagemPendenteModel.id()).toUri();
+
+        return ResponseEntity.created(uri).body(mensagemPendenteModel);
+
     }
+
+
 }
